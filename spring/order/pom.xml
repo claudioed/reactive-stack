@@ -67,7 +67,7 @@
         <configuration>
           <images>
             <image>
-              <name>reactive-stack-spring-product</name>
+              <name>reactive-stack-spring-order</name>
               <build>
                 <from>openjdk:latest</from>
                 <entryPoint>java -jar /application/${project.build.finalName}.jar </entryPoint>
@@ -88,7 +88,7 @@
                   <tag>latest</tag>
                 </tags>
                 <ports>
-                  <port>8080</port>
+                  <port>8081</port>
                 </ports>
               </build>
               <run>
