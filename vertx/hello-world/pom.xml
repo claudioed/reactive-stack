@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <parent>
+    <artifactId>vertx-stacks</artifactId>
+    <groupId>com.claudioliveira</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <fabric8.vertx.plugin.version>1.0.8</fabric8.vertx.plugin.version>
+    <vertx.verticle>hello.HelloWorldVerticle</vertx.verticle>
+    <docker-maven-plugin.version>0.21.0</docker-maven-plugin.version>
+  </properties>
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>hello-world</artifactId>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web</artifactId>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+
+    <finalName>hello-world</finalName>
+
+    <plugins>
+
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>vertx-maven-plugin</artifactId>
+        <version>${fabric8.vertx.plugin.version}</version>
+        <executions>
+          <execution>
+            <id>vmp-init-package</id>
+            <goals>
+              <goal>initialize</goal>
+              <goal>package</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>${docker-maven-plugin.version}</version>
+        <configuration>
+          <images>
+            <image>
+              <name>reactive-stack-vertx-hello</name>
+              <build>
+                <from>openjdk:latest</from>
+                <entryPoint>java -jar /application/${project.build.finalName}.jar </entryPoint>
+                <assembly>
+                  <basedir>/application</basedir>
+                  <descriptorRef>artifact</descriptorRef>
+                  <inline>
+                    <id>assembly</id>
+                    <files>
+                      <file>
+                        <source>target/${project.build.finalName}.jar</source>
+                      </file>
+                    </files>
+                  </inline>
+                </assembly>
+                <tags>
+                  <tag>${project.version}</tag>
+                  <tag>latest</tag>
+                </tags>
+                <ports>
+                  <port>4004</port>
+                </ports>
+              </build>
+              <run>
+                <namingStrategy>alias</namingStrategy>
+              </run>
+              <alias>${project.build.finalName}</alias>
+            </image>
+          </images>
+        </configuration>
+      </plugin>
+
+    </plugins>
+
+  </build>
+
+</project>
