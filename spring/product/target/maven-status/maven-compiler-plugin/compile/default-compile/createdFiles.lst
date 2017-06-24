@@ -1,7 +1,0 @@
-product/domain/rest/model/ProductRequest.class
-product/domain/service/ProductService.class
-product/ProductApplication.class
-product/domain/Product.class
-product/domain/Product$ProductBuilder.class
-product/domain/repository/ProductRepository.class
-product/domain/rest/ProductResource.class

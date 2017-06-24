@@ -1,1 +1,0 @@
-CREATE TABLE catalog.product ( sku text PRIMARY KEY,  name text, description text);

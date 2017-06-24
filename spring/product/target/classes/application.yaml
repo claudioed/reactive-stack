@@ -1,6 +1,0 @@
-spring:
-  data:
-    cassandra:
-      keyspace-name: catalog
-      contact-points: ${CASSANDRA_HOST}
-      port: ${CASSANDRA_PORT}
