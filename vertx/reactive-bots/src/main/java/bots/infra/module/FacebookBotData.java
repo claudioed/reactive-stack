@@ -16,9 +16,13 @@ public class FacebookBotData {
 
   String verifyToken;
 
+  String messageUrl;
+
+  String profileToken;
+
   @Builder
-  public static FacebookBotData create(@NonNull String appSecret,@NonNull String verifyToken){
-    return new FacebookBotData(appSecret,verifyToken);
+  public static FacebookBotData create(@NonNull String appSecret,@NonNull String verifyToken,@NonNull String messageUrl,@NonNull String profileToken){
+    return new FacebookBotData(appSecret,verifyToken,messageUrl,profileToken);
   }
 
 }

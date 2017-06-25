@@ -2,9 +2,10 @@ package bots.verticle;
 
 import bots.FacebookChallengeData;
 import bots.infra.module.FacebookBotData;
+import bots.model.FacebookBotMessage;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
@@ -19,9 +20,12 @@ public class FacebookWebhookVerticle extends AbstractVerticle {
 
   private final FacebookBotData conf;
 
+  private final Gson gson;
+
   @Inject
-  public FacebookWebhookVerticle(FacebookBotData conf) {
+  public FacebookWebhookVerticle(FacebookBotData conf,Gson gson) {
     this.conf = conf;
+    this.gson = gson;
   }
 
   @Override
@@ -45,8 +49,12 @@ public class FacebookWebhookVerticle extends AbstractVerticle {
     });
 
     router.post("/webhook").handler(rc -> {
-      LOGGER.info("receive facebook message");
-      final JsonObject messages = rc.getBodyAsJson();
+      LOGGER.info("receive facebook message =>" + rc.getBodyAsString());
+      final FacebookBotMessage botMessage = this.gson
+          .fromJson(rc.getBodyAsString(), FacebookBotMessage.class);
+       botMessage.getEntry().parallelStream()
+           .forEach(msg -> vertx.eventBus().send("facebook-text-eb",this.gson.toJson(msg)));
+      rc.response().setStatusCode(200).end();
 
     });
 

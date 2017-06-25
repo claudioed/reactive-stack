@@ -14,8 +14,10 @@ public class MainReactiveBotsVerticle extends AbstractVerticle {
   public void start() throws Exception {
     JsonObject config = new JsonObject().put("guice_binder", ReactiveBotsModule.class.getName());
     final DeploymentOptions deploymentOptions = new DeploymentOptions().setConfig(config);
-    String deploymentName = "java-guice:" + FacebookWebhookVerticle.class.getName();
-    vertx.deployVerticle(deploymentName,deploymentOptions);
+    String facebookWebhookVerticle = "java-guice:" + FacebookWebhookVerticle.class.getName();
+    String facebookTextAnswerVerticle = "java-guice:" + FacebookTextAnswerVerticle.class.getName();
+    vertx.deployVerticle(facebookWebhookVerticle,deploymentOptions);
+    vertx.deployVerticle(facebookTextAnswerVerticle,deploymentOptions);
   }
 
 }

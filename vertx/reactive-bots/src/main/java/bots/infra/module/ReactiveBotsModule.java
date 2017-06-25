@@ -1,5 +1,6 @@
 package bots.infra.module;
 
+import com.google.gson.Gson;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -18,6 +19,11 @@ public class ReactiveBotsModule extends AbstractModule {
   public FacebookBotData conf() {
     return FacebookBotData.builder().appSecret(System.getenv("FACEBOOK_APP_SECRET"))
         .verifyToken(System.getenv("FACEBOOK_VERIFY_TOKEN")).build();
+  }
+
+  @Provides @Singleton
+  public Gson gson(){
+    return new Gson();
   }
 
 }
