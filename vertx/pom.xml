@@ -8,6 +8,7 @@
   <version>0.0.1-SNAPSHOT</version>
   <modules>
     <module>hello-world</module>
+    <module>reactive-bots</module>
   </modules>
   <packaging>pom</packaging>
 
@@ -39,6 +40,19 @@
         <groupId>io.vertx</groupId>
         <artifactId>vertx-web</artifactId>
         <version>${vertx.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.englishtown.vertx</groupId>
+        <artifactId>vertx-guice</artifactId>
+        <version>2.3.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.16.16</version>
+        <scope>provided</scope>
       </dependency>
 
     </dependencies>
