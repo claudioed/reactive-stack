@@ -21,8 +21,16 @@ public class ReactiveBotsModule extends AbstractModule {
         .verifyToken(System.getenv("FACEBOOK_VERIFY_TOKEN")).build();
   }
 
-  @Provides @Singleton
-  public Gson gson(){
+  @Provides
+  @Singleton
+  public ApiAIData apiConf() {
+    return ApiAIData.builder().token(System.getenv("API_AI_TOKEN")).url(System.getenv("API_AI_URL"))
+        .build();
+  }
+
+  @Provides
+  @Singleton
+  public Gson gson() {
     return new Gson();
   }
 
