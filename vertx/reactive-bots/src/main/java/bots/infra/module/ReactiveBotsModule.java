@@ -24,7 +24,7 @@ public class ReactiveBotsModule extends AbstractModule {
   @Provides
   @Singleton
   public ApiAIData apiConf() {
-    return ApiAIData.builder().token(System.getenv("API_AI_TOKEN")).url(System.getenv("API_AI_URL"))
+    return ApiAIData.builder().token(System.getenv("API_AI_TOKEN")).url(System.getenv("API_AI_URL")).sessionId(System.getenv("API_AI_SESSION_ID"))
         .build();
   }
 

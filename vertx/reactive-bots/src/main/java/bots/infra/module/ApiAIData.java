@@ -16,9 +16,11 @@ public class ApiAIData {
 
   String token;
 
+  String sessionId;
+
   @Builder
-  public static ApiAIData create(@NonNull String url,@NonNull String token){
-    return new ApiAIData(url,token);
+  public static ApiAIData create(@NonNull String url,@NonNull String token,@NonNull String sessionId){
+    return new ApiAIData(url,token,sessionId);
   }
 
 }

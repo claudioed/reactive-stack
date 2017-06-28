@@ -2,6 +2,7 @@ package bots.verticle;
 
 import bots.infra.module.ApiAIData;
 import bots.infra.module.FacebookBotData;
+import bots.model.ApiAIQuery;
 import bots.model.FacebookMessageData;
 import bots.model.FacebookTextMessage;
 import bots.model.FacebookTextMessage.Message;
@@ -11,11 +12,17 @@ import com.google.inject.Inject;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.web.client.WebClient;
 
 /**
  * @author claudioed on 25/06/17. Project vertx
  */
 public class FacebookTextAnswerVerticle extends AbstractVerticle {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(FacebookTextAnswerVerticle.class);
 
   private final FacebookBotData conf;
 
@@ -38,9 +45,27 @@ public class FacebookTextAnswerVerticle extends AbstractVerticle {
           .fromJson(handler.body().toString(), FacebookMessageData.class);
       final String messageContent = facebookMessageData.getMessage().getString("text");
 
+      LOGGER.info(String.format("Recebendo mensagem do facebook %s",messageContent));
 
+      final ApiAIQuery aiQuery = ApiAIQuery.builder().query(messageContent)
+          .sessionId(this.apiAIData.getSessionId()).build();
+
+      final WebClient webClient = WebClient.create(this.vertx);
+
+
+
+
+      webClient.post(apiAIData.getUrl()).putHeader("Authorization","Bearer " + this.apiAIData.getToken()).sendJsonObject(new JsonObject(this.gson.toJson(aiQuery)), ar ->{
+
+
+
+
+
+      });
 
       vertxHttpClient.post(apiAIData.getUrl()).handler(apiAiResponse -> {
+
+        LOGGER.info(String.format("Recebendo mensagem do API AI %s",apiAiResponse));
 
         final Message text = Message.builder().text("").build();
         final Recipient recipient = Recipient.builder().id("").build();
@@ -53,7 +78,7 @@ public class FacebookTextAnswerVerticle extends AbstractVerticle {
 
 
 
-      }).putHeader(HttpHeaders.AUTHORIZATION,"Bearer " + this.apiAIData.getToken()).write("api argument").end();
+      }).putHeader(HttpHeaders.AUTHORIZATION,"Bearer " + this.apiAIData.getToken()).write(this.gson.toJson(aiQuery)).end();
 
 
     });
