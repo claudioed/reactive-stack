@@ -18,7 +18,7 @@ public class ReactiveBotsModule extends AbstractModule {
   @Singleton
   public FacebookBotData conf() {
     return FacebookBotData.builder().appSecret(System.getenv("FACEBOOK_APP_SECRET"))
-        .verifyToken(System.getenv("FACEBOOK_VERIFY_TOKEN")).build();
+        .verifyToken(System.getenv("FACEBOOK_VERIFY_TOKEN")).messageUrl("FACEBOOK_MESSAGE_URL").profileToken("FACEBOOK_PROFILE_TOKEN").build();
   }
 
   @Provides

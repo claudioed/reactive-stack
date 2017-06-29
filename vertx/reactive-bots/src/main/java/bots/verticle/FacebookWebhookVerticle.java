@@ -49,11 +49,16 @@ public class FacebookWebhookVerticle extends AbstractVerticle {
     });
 
     router.post("/webhook").handler(rc -> {
-      LOGGER.info("receive facebook message =>" + rc.getBodyAsString());
+      LOGGER.info("RECEIVE FACEBOOK MESSAGE =>" + rc.getBodyAsString());
       final FacebookBotMessage botMessage = this.gson
           .fromJson(rc.getBodyAsString(), FacebookBotMessage.class);
-       botMessage.getEntry().parallelStream()
-           .forEach(msg -> vertx.eventBus().send("facebook-text-eb",this.gson.toJson(msg)));
+
+       botMessage.getEntry()
+           .forEach(msg -> {
+             final String message = this.gson.toJson(msg);
+             LOGGER.info("POST MESSAGE TO BUS -> " + message);
+             vertx.eventBus().send("facebook-text-eb",message);
+           });
       rc.response().setStatusCode(200).end();
 
     });

@@ -1,6 +1,5 @@
 package bots.model;
 
-import io.vertx.core.json.JsonObject;
 import lombok.Data;
 
 /**
@@ -15,7 +14,7 @@ public class FacebookMessageData {
 
   Long timestamp;
 
-  JsonObject message;
+  String message;
 
   @Data
   public static class Sender{

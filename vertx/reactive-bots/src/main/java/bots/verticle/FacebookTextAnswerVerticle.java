@@ -9,13 +9,12 @@ import bots.model.FacebookTextMessage.Message;
 import bots.model.FacebookTextMessage.Recipient;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import io.vertx.ext.web.client.WebClient;
+import io.vertx.rxjava.core.AbstractVerticle;
+import io.vertx.rxjava.ext.web.client.WebClient;
 
 /**
  * @author claudioed on 25/06/17. Project vertx
@@ -31,7 +30,7 @@ public class FacebookTextAnswerVerticle extends AbstractVerticle {
   private final ApiAIData apiAIData;
 
   @Inject
-  public FacebookTextAnswerVerticle(FacebookBotData conf,Gson gson,ApiAIData apiAIData) {
+  public FacebookTextAnswerVerticle(FacebookBotData conf, Gson gson, ApiAIData apiAIData) {
     this.conf = conf;
     this.gson = gson;
     this.apiAIData = apiAIData;
@@ -39,48 +38,52 @@ public class FacebookTextAnswerVerticle extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
-    final HttpClient vertxHttpClient = vertx.createHttpClient();
-    vertx.eventBus().consumer("facebook-text-eb",handler ->{
+
+    vertx.eventBus().consumer("facebook-text-eb", handler -> {
+
+      LOGGER.info("Recebendo mensagem no BUS..." + handler.body().toString());
       final FacebookMessageData facebookMessageData = gson
           .fromJson(handler.body().toString(), FacebookMessageData.class);
-      final String messageContent = facebookMessageData.getMessage().getString("text");
+      LOGGER.info("Mensagem convertida com sucesso!!!");
 
-      LOGGER.info(String.format("Recebendo mensagem do facebook %s",messageContent));
+      final JsonObject messageNode = Json
+          .decodeValue(facebookMessageData.getMessage(), io.vertx.core.json.JsonObject.class);
+
+      LOGGER.info("Conteudo da mensagem => " + messageNode.toString() );
+
+      final String messageContent = messageNode.getString("text");
+
+      LOGGER.info("Texto da mensagem => " + messageNode.toString() );
 
       final ApiAIQuery aiQuery = ApiAIQuery.builder().query(messageContent)
           .sessionId(this.apiAIData.getSessionId()).build();
 
-      final WebClient webClient = WebClient.create(this.vertx);
+      WebClient client = WebClient.create(vertx);
 
+      client
+          .post(apiAIData.getUrl())
+          .putHeader("Authorization", "Bearer " + this.apiAIData.getToken())
+          .rxSendJson(this.gson.toJson(aiQuery)).subscribe(apiAiResponse -> {
 
-
-
-      webClient.post(apiAIData.getUrl()).putHeader("Authorization","Bearer " + this.apiAIData.getToken()).sendJsonObject(new JsonObject(this.gson.toJson(aiQuery)), ar ->{
-
-
-
-
-
-      });
-
-      vertxHttpClient.post(apiAIData.getUrl()).handler(apiAiResponse -> {
-
-        LOGGER.info(String.format("Recebendo mensagem do API AI %s",apiAiResponse));
+        LOGGER.info(String.format("Recebendo mensagem status %s do API AI %s", apiAiResponse.statusCode(),
+                apiAiResponse.body()));
 
         final Message text = Message.builder().text("").build();
         final Recipient recipient = Recipient.builder().id("").build();
-        final FacebookTextMessage message = FacebookTextMessage.builder().recipient(recipient).message(text).build();
+        final FacebookTextMessage message = FacebookTextMessage.builder().recipient(recipient)
+            .message(text).build();
 
-        vertxHttpClient.post(conf.getMessageUrl()+ "?access_token=" + conf.getProfileToken()).handler(facebookResponse ->{
+        client
+            .post(conf.getMessageUrl() + "?access_token=" + conf.getProfileToken())
+            .rxSendJson(this.gson.toJson(message)).subscribe(apiFacebookResponse -> {
+
+          LOGGER.info(String.format("Recebendo status %s do FACEBOOK %s", apiFacebookResponse.statusCode(),
+              apiFacebookResponse.body()));
+
+        });
 
 
-        }).write(this.gson.toJson(message)).end();
-
-
-
-      }).putHeader(HttpHeaders.AUTHORIZATION,"Bearer " + this.apiAIData.getToken()).write(this.gson.toJson(aiQuery)).end();
-
-
+      });
     });
 
   }
